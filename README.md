@@ -22,11 +22,19 @@ Clone into your ComfyUI custom nodes directory:
 
 ```bash
 cd ComfyUI/custom_nodes
-git clone https://github.com/DanielBartworktree/ComfyUI-Qwen3.5.git
+git clone https://github.com/DanielBartolic/ComfyUI-Qwen3.5.git
 pip install -r ComfyUI-Qwen3.5/requirements.txt
 ```
 
 The model will be automatically downloaded to `ComfyUI/models/LLM/Qwen3.5-9B/` on first use.
+
+**Important:** Start ComfyUI with `--disable-cuda-malloc` to avoid OOM errors during model loading:
+
+```bash
+python main.py --listen 0.0.0.0 --disable-cuda-malloc
+```
+
+This is required because `transformers >= 5.2.0` loads model weights in parallel, which conflicts with ComfyUI's default `cudaMallocAsync` memory allocator.
 
 ## Node: Qwen 3.5
 
