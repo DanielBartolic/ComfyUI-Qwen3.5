@@ -2,6 +2,7 @@
 # Qwen3.5 models require transformers >= 5.2.0
 transformers>=5.2.0
 torch
+torchvision
 huggingface-hub
 numpy
 Pillow
