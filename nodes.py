@@ -179,6 +179,14 @@ class Qwen35:
         elif quantization == "8-bit":
             quant_config = BitsAndBytesConfig(load_in_8bit=True)
 
+        # Temporarily reset any VRAM memory fraction limit set by ComfyUI
+        # so the model can use all available GPU memory for loading
+        if torch.cuda.is_available():
+            try:
+                torch.cuda.set_per_process_memory_fraction(1.0)
+            except Exception:
+                pass
+
         print(f"[Qwen3.5] Loading model ({quantization})...")
         self.model = AutoVLModel.from_pretrained(
             model_path,
