@@ -5,6 +5,16 @@ import os
 # https://huggingface.co/docs/transformers/en/reference/environment_variables
 os.environ["HF_DEACTIVATE_ASYNC_LOAD"] = "1"
 
-from .nodes import NODE_CLASS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS
+from .nodes import NODE_CLASS_MAPPINGS as _HF, NODE_DISPLAY_NAME_MAPPINGS as _HF_NAMES
+
+NODE_CLASS_MAPPINGS = dict(_HF)
+NODE_DISPLAY_NAME_MAPPINGS = dict(_HF_NAMES)
+
+try:
+    from .nodes_gguf import NODE_CLASS_MAPPINGS as _GGUF, NODE_DISPLAY_NAME_MAPPINGS as _GGUF_NAMES
+    NODE_CLASS_MAPPINGS.update(_GGUF)
+    NODE_DISPLAY_NAME_MAPPINGS.update(_GGUF_NAMES)
+except ImportError as e:
+    print(f"[Qwen3.5] GGUF node not available: {e}")
 
 __all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS"]
