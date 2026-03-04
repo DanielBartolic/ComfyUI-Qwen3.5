@@ -5,6 +5,7 @@
 # Model: https://huggingface.co/Qwen/Qwen3.5-9B
 # License: Apache-2.0
 
+import concurrent.futures
 import gc
 import re
 import os
@@ -206,11 +207,22 @@ class Qwen35:
             free_gb = free_mem / (1024 ** 3)
             print(f"[Qwen3.5] GPU memory: {free_gb:.1f} GiB free / {total_mem / (1024**3):.1f} GiB total")
 
+        # Temporarily force single-threaded tensor loading.
+        # transformers 5.2+ materializes weights in parallel via ThreadPoolExecutor,
+        # which causes OOM with ComfyUI's cudaMallocAsync allocator.
+        _orig_tpe_init = concurrent.futures.ThreadPoolExecutor.__init__
+        concurrent.futures.ThreadPoolExecutor.__init__ = (
+            lambda self, *a, **kw: _orig_tpe_init(self, *a, **{**kw, "max_workers": 1})
+        )
+
         print(f"[Qwen3.5] Loading model ({quantization})...")
-        self.model = AutoVLModel.from_pretrained(
-            model_path,
-            **load_kwargs,
-        ).eval()
+        try:
+            self.model = AutoVLModel.from_pretrained(
+                model_path,
+                **load_kwargs,
+            ).eval()
+        finally:
+            concurrent.futures.ThreadPoolExecutor.__init__ = _orig_tpe_init
 
         self.processor = AutoProcessor.from_pretrained(model_path, trust_remote_code=True)
         self.tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
