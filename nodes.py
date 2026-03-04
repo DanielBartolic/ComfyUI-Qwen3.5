@@ -68,14 +68,14 @@ class Qwen35:
                     "tooltip": "Maximum tokens to generate",
                 }),
                 "temperature": ("FLOAT", {
-                    "default": 0.7,
+                    "default": 1.0,
                     "min": 0.0,
                     "max": 2.0,
                     "step": 0.05,
                     "tooltip": "Sampling temperature. Thinking mode recommends 1.0, instruct mode 0.7",
                 }),
                 "top_p": ("FLOAT", {
-                    "default": 0.8,
+                    "default": 0.95,
                     "min": 0.0,
                     "max": 1.0,
                     "step": 0.05,
@@ -95,7 +95,7 @@ class Qwen35:
                     "tooltip": "Penalty for repeated tokens. Recommended: 1.0",
                 }),
                 "enable_thinking": ("BOOLEAN", {
-                    "default": False,
+                    "default": True,
                     "tooltip": "Enable thinking mode. Model outputs <think>...</think> reasoning before response.",
                 }),
                 "quantization": (QUANTIZATION_OPTIONS, {
