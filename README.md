@@ -2,8 +2,6 @@
 
 Custom ComfyUI node for the [Qwen3.5](https://huggingface.co/collections/Qwen/qwen35) family — unified natively multimodal models with image, video, and text understanding.
 
-> **Required:** ComfyUI **must** be started with `--disable-cuda-malloc`. See [Installation](#installation).
-
 ![ComfyUI-Qwen3.5 Screenshot](screenshot.png)
 
 ## Features
@@ -13,6 +11,7 @@ Custom ComfyUI node for the [Qwen3.5](https://huggingface.co/collections/Qwen/qw
 - **Text generation** — pure text tasks (reasoning, writing, coding)
 - **Thinking mode** — optional chain-of-thought reasoning before response
 - **Quantization** — FP16, 8-bit, or 4-bit to fit different VRAM budgets
+- **ComfyUI compatible** — automatically handles `cudaMallocAsync` compatibility
 
 ## Supported Models
 
@@ -34,15 +33,9 @@ git clone https://github.com/DanielBartolic/ComfyUI-Qwen3.5.git
 pip install -r ComfyUI-Qwen3.5/requirements.txt
 ```
 
-The model will be automatically downloaded to `ComfyUI/models/LLM/Qwen3.5-9B/` on first use.
+The model will be automatically downloaded to `ComfyUI/models/LLM/` on first use.
 
-**Important:** Start ComfyUI with `--disable-cuda-malloc` to avoid OOM errors during model loading:
-
-```bash
-python main.py --listen 0.0.0.0 --disable-cuda-malloc
-```
-
-This is required because `transformers >= 5.2.0` loads model weights in parallel, which conflicts with ComfyUI's default `cudaMallocAsync` memory allocator.
+> **Note:** This node automatically sets `HF_DEACTIVATE_ASYNC_LOAD=1` to prevent OOM errors caused by `transformers >= 5.2.0`'s parallel weight loading conflicting with ComfyUI's `cudaMallocAsync` allocator. No special flags needed.
 
 ## Node: Qwen 3.5
 
