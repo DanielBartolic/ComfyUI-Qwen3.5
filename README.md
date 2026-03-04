@@ -2,6 +2,8 @@
 
 Custom ComfyUI node for the [Qwen3.5](https://huggingface.co/collections/Qwen/qwen35-68417de654900a475d940ded) family — unified natively multimodal models with image, video, and text understanding.
 
+> **Note:** ComfyUI must be started with `--disable-cuda-malloc` for this node to work. See [Installation](#installation) for details.
+
 ![ComfyUI-Qwen3.5 Screenshot](screenshot.png)
 
 ## Features
@@ -54,11 +56,11 @@ Found under **🧪AILab/Qwen3.5** in the node menu.
 | `prompt` | STRING | required | Text prompt for the model |
 | `system_prompt` | STRING | `""` | Optional system prompt |
 | `max_tokens` | INT | 4096 | Maximum tokens to generate |
-| `temperature` | FLOAT | 0.7 | Sampling temperature |
-| `top_p` | FLOAT | 0.8 | Nucleus sampling |
+| `temperature` | FLOAT | 1.0 | Sampling temperature |
+| `top_p` | FLOAT | 0.95 | Nucleus sampling |
 | `top_k` | INT | 20 | Top-K sampling |
 | `repetition_penalty` | FLOAT | 1.0 | Repeated token penalty |
-| `enable_thinking` | BOOLEAN | False | Enable chain-of-thought reasoning |
+| `enable_thinking` | BOOLEAN | True | Enable chain-of-thought reasoning |
 | `quantization` | dropdown | FP16 | FP16 / 8-bit / 4-bit |
 | `keep_model_loaded` | BOOLEAN | True | Keep model in VRAM between runs |
 | `seed` | INT | 1 | Random seed |
