@@ -179,21 +179,37 @@ class Qwen35:
         elif quantization == "8-bit":
             quant_config = BitsAndBytesConfig(load_in_8bit=True)
 
-        # Temporarily reset any VRAM memory fraction limit set by ComfyUI
-        # so the model can use all available GPU memory for loading
+        # Reset any VRAM memory fraction limit set by ComfyUI
         if torch.cuda.is_available():
             try:
                 torch.cuda.set_per_process_memory_fraction(1.0)
             except Exception:
                 pass
 
+        # Tell accelerate the actual free GPU memory so it can split
+        # model between GPU and CPU if needed
+        load_kwargs = {
+            "quantization_config": quant_config,
+            "torch_dtype": "auto",
+            "use_safetensors": True,
+        }
+
+        if torch.cuda.is_available():
+            free_mem, total_mem = torch.cuda.mem_get_info(0)
+            free_gb = free_mem / (1024 ** 3)
+            print(f"[Qwen3.5] GPU memory: {free_gb:.1f} GiB free / {total_mem / (1024**3):.1f} GiB total")
+            # Give accelerate accurate free memory (use 90% to leave headroom)
+            max_gpu_mem = f"{int(free_gb * 0.9)}GiB"
+            load_kwargs["max_memory"] = {0: max_gpu_mem, "cpu": "32GiB"}
+            load_kwargs["device_map"] = "auto"
+            print(f"[Qwen3.5] Setting max GPU memory: {max_gpu_mem}, CPU offload enabled")
+        else:
+            load_kwargs["device_map"] = "auto"
+
         print(f"[Qwen3.5] Loading model ({quantization})...")
         self.model = AutoVLModel.from_pretrained(
             model_path,
-            quantization_config=quant_config,
-            device_map="auto",
-            torch_dtype="auto",
-            use_safetensors=True,
+            **load_kwargs,
         )
 
         self.processor = AutoProcessor.from_pretrained(model_path, trust_remote_code=True)
