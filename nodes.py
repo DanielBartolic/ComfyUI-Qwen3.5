@@ -128,7 +128,7 @@ class Qwen35:
     RETURN_TYPES = ("STRING", "STRING")
     RETURN_NAMES = ("RESPONSE", "THINKING")
     FUNCTION = "process"
-    CATEGORY = "🧪AILab/Qwen3.5"
+    CATEGORY = "Qwen3.5"
 
     @staticmethod
     def _get_model_path(model_name: str):

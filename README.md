@@ -46,7 +46,7 @@ This is required because `transformers >= 5.2.0` loads model weights in parallel
 
 ## Node: Qwen 3.5
 
-Found under **🧪AILab/Qwen3.5** in the node menu.
+Found under **Qwen3.5** in the node menu.
 
 ### Inputs
 
