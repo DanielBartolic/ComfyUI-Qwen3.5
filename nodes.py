@@ -115,8 +115,8 @@ class Qwen35:
             },
         }
 
-    RETURN_TYPES = ("STRING",)
-    RETURN_NAMES = ("RESPONSE",)
+    RETURN_TYPES = ("STRING", "STRING")
+    RETURN_NAMES = ("RESPONSE", "THINKING")
     FUNCTION = "process"
     CATEGORY = "🧪AILab/Qwen3.5"
 
@@ -228,8 +228,8 @@ class Qwen35:
         top_k: int,
         repetition_penalty: float,
         enable_thinking: bool,
-    ) -> str:
-        """Run inference with the loaded model."""
+    ) -> tuple[str, str]:
+        """Run inference with the loaded model. Returns (response, thinking)."""
         # Build conversation
         messages = []
 
@@ -314,14 +314,21 @@ class Qwen35:
         generated = outputs[0, input_len:]
         text = self.tokenizer.decode(generated, skip_special_tokens=True).strip()
 
-        # Strip thinking blocks from output.
+        # Extract thinking content and clean response separately.
         # Handle both <think>...</think> and cases where <think> was consumed
         # by skip_special_tokens but </think> remains.
-        text = THINK_BLOCK_RE.sub("", text).strip()
+        thinking = ""
+        match = THINK_BLOCK_RE.search(text)
+        if match:
+            thinking = re.sub(r"</?think[^>]*>", "", match.group(0)).strip()
+            text = THINK_BLOCK_RE.sub("", text).strip()
         if "</think>" in text:
-            text = text.split("</think>")[-1].strip()
+            parts = text.split("</think>", 1)
+            if not thinking:
+                thinking = parts[0].strip()
+            text = parts[1].strip()
 
-        return text
+        return text, thinking
 
     def process(
         self,
@@ -345,7 +352,7 @@ class Qwen35:
         self._load_model(quantization, keep_model_loaded)
 
         try:
-            text = self._generate(
+            response, thinking = self._generate(
                 prompt=prompt,
                 system_prompt=system_prompt,
                 image=image,
@@ -358,7 +365,7 @@ class Qwen35:
                 repetition_penalty=repetition_penalty,
                 enable_thinking=enable_thinking,
             )
-            return (text,)
+            return (response, thinking)
         finally:
             if not keep_model_loaded:
                 self._clear()
