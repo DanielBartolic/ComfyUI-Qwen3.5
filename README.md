@@ -2,7 +2,7 @@
 
 Custom ComfyUI node for the [Qwen3.5](https://huggingface.co/collections/Qwen/qwen35-68417de654900a475d940ded) family — unified natively multimodal models with image, video, and text understanding.
 
-> **Note:** ComfyUI must be started with `--disable-cuda-malloc` for this node to work. See [Installation](#installation) for details.
+> **Required:** ComfyUI **must** be started with `--disable-cuda-malloc`. See [Installation](#installation).
 
 ![ComfyUI-Qwen3.5 Screenshot](screenshot.png)
 
