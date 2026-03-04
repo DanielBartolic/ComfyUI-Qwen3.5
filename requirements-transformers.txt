@@ -1,0 +1,6 @@
+# Extra requirements for the Qwen 3.5 (transformers) node
+# Install: pip install -r requirements.txt -r requirements-transformers.txt
+transformers>=5.2.0
+torchvision
+bitsandbytes
+accelerate

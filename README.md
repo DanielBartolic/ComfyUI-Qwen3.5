@@ -25,22 +25,37 @@ Clone into your ComfyUI custom nodes directory:
 ```bash
 cd ComfyUI/custom_nodes
 git clone https://github.com/DanielBartolic/ComfyUI-Qwen3.5.git
-pip install -r ComfyUI-Qwen3.5/requirements.txt
 ```
 
-Models are automatically downloaded to `ComfyUI/models/LLM/` on first use.
+Then install dependencies for the node(s) you want to use:
 
-### GGUF Node (optional)
+### Transformers node only
 
-The GGUF node requires [llama.cpp](https://github.com/ggml-org/llama.cpp) built with CUDA:
+```bash
+pip install -r ComfyUI-Qwen3.5/requirements.txt -r ComfyUI-Qwen3.5/requirements-transformers.txt
+```
+
+### GGUF node only
+
+```bash
+pip install -r ComfyUI-Qwen3.5/requirements.txt -r ComfyUI-Qwen3.5/requirements-gguf.txt
+```
+
+The GGUF node also requires [llama.cpp](https://github.com/ggml-org/llama.cpp) built with CUDA:
 
 ```bash
 git clone https://github.com/ggml-org/llama.cpp
 cmake llama.cpp -B llama.cpp/build -DGGML_CUDA=ON
 cmake --build llama.cpp/build --config Release -j$(nproc)
-
-# Make the binary accessible
 cp llama.cpp/build/bin/llama-mtmd-cli /usr/local/bin/
+```
+
+### Both nodes
+
+```bash
+pip install -r ComfyUI-Qwen3.5/requirements.txt \
+            -r ComfyUI-Qwen3.5/requirements-transformers.txt \
+            -r ComfyUI-Qwen3.5/requirements-gguf.txt
 ```
 
 GGUF models from [unsloth/Qwen3.5-9B-GGUF](https://huggingface.co/unsloth/Qwen3.5-9B-GGUF) are auto-downloaded on first use.

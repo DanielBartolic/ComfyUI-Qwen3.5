@@ -1,10 +1,5 @@
-# ComfyUI-Qwen3.5 requirements
-# Qwen3.5 models require transformers >= 5.2.0
-transformers>=5.2.0
-torch
-torchvision
+# Shared (both nodes)
 huggingface-hub
 numpy
 Pillow
-bitsandbytes
-accelerate
+torch

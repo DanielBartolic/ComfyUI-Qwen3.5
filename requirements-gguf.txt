@@ -1,0 +1,8 @@
+# Extra requirements for the Qwen 3.5 (GGUF) node
+# Install: pip install -r requirements.txt -r requirements-gguf.txt
+#
+# Also requires llama.cpp built with CUDA:
+#   git clone https://github.com/ggml-org/llama.cpp
+#   cmake llama.cpp -B llama.cpp/build -DGGML_CUDA=ON
+#   cmake --build llama.cpp/build --config Release -j$(nproc)
+#   cp llama.cpp/build/bin/llama-mtmd-cli /usr/local/bin/
