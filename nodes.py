@@ -145,28 +145,31 @@ class Qwen35:
         array = (tensor.cpu().numpy() * 255).clip(0, 255).astype(np.uint8)
         return Image.fromarray(array)
 
-    def _clear(self):
+    @classmethod
+    def _clear(cls):
         """Release model from memory."""
-        self.model = None
-        self.processor = None
-        self.tokenizer = None
-        self.current_signature = None
+        cls.model = None
+        cls.processor = None
+        cls.tokenizer = None
+        cls.current_signature = None
         gc.collect()
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
 
-    def _load_model(self, model_name: str, quantization: str, keep_model_loaded: bool):
+    @classmethod
+    def _load_model(cls, model_name: str, quantization: str, keep_model_loaded: bool):
         """Load or reuse the model based on current config."""
         repo_id = MODELS[model_name]
         signature = f"{repo_id}_{quantization}"
 
-        if self.model is not None and self.current_signature == signature:
+        if cls.model is not None and cls.current_signature == signature:
+            print(f"[Qwen3.5] Reusing loaded {model_name} ({quantization})")
             return
 
-        if self.model is not None:
-            self._clear()
+        if cls.model is not None:
+            cls._clear()
 
-        model_path = self._get_model_path(model_name)
+        model_path = cls._get_model_path(model_name)
 
         # Download if not present
         if not os.path.exists(os.path.join(model_path, "config.json")):
@@ -215,19 +218,20 @@ class Qwen35:
             print(f"[Qwen3.5] GPU memory: {free_gb:.1f} GiB free / {total_mem / (1024**3):.1f} GiB total")
 
         print(f"[Qwen3.5] Loading {model_name} ({quantization})...")
-        self.model = AutoVLModel.from_pretrained(
+        cls.model = AutoVLModel.from_pretrained(
             model_path,
             **load_kwargs,
         ).eval()
 
-        self.processor = AutoProcessor.from_pretrained(model_path, trust_remote_code=True)
-        self.tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
-        self.current_signature = signature
+        cls.processor = AutoProcessor.from_pretrained(model_path, trust_remote_code=True)
+        cls.tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
+        cls.current_signature = signature
         print("[Qwen3.5] Model loaded.")
 
+    @classmethod
     @torch.no_grad()
     def _generate(
-        self,
+        cls,
         prompt: str,
         system_prompt: str,
         image,
@@ -251,12 +255,12 @@ class Qwen35:
 
         # Image mode
         if image is not None:
-            pil_image = self._tensor_to_pil(image)
+            pil_image = cls._tensor_to_pil(image)
             user_content.append({"type": "image", "image": pil_image})
 
         # Video mode
         if video is not None:
-            frames = [self._tensor_to_pil(frame) for frame in video]
+            frames = [cls._tensor_to_pil(frame) for frame in video]
             if len(frames) > frame_count:
                 idx = np.linspace(0, len(frames) - 1, frame_count, dtype=int)
                 frames = [frames[i] for i in idx]
@@ -268,7 +272,7 @@ class Qwen35:
         messages.append({"role": "user", "content": user_content})
 
         # Apply chat template with thinking mode control
-        chat = self.processor.apply_chat_template(
+        chat = cls.processor.apply_chat_template(
             messages,
             tokenize=False,
             add_generation_prompt=True,
@@ -285,23 +289,23 @@ class Qwen35:
         ]
         videos = [video_frames] if video_frames else None
 
-        processed = self.processor(
+        processed = cls.processor(
             text=chat,
             images=images or None,
             videos=videos,
             return_tensors="pt",
         )
 
-        model_device = next(self.model.parameters()).device
+        model_device = next(cls.model.parameters()).device
         model_inputs = {
             key: value.to(model_device) if torch.is_tensor(value) else value
             for key, value in processed.items()
         }
 
         # Stop tokens
-        stop_tokens = [self.tokenizer.eos_token_id]
-        if hasattr(self.tokenizer, "eot_id") and self.tokenizer.eot_id is not None:
-            stop_tokens.append(self.tokenizer.eot_id)
+        stop_tokens = [cls.tokenizer.eos_token_id]
+        if hasattr(cls.tokenizer, "eot_id") and cls.tokenizer.eot_id is not None:
+            stop_tokens.append(cls.tokenizer.eot_id)
 
         # Generate
         gen_kwargs = {
@@ -312,10 +316,10 @@ class Qwen35:
             "top_k": top_k,
             "repetition_penalty": repetition_penalty,
             "eos_token_id": stop_tokens,
-            "pad_token_id": self.tokenizer.pad_token_id,
+            "pad_token_id": cls.tokenizer.pad_token_id,
         }
 
-        outputs = self.model.generate(**model_inputs, **gen_kwargs)
+        outputs = cls.model.generate(**model_inputs, **gen_kwargs)
 
         if torch.cuda.is_available():
             torch.cuda.synchronize()
@@ -323,7 +327,7 @@ class Qwen35:
         # Decode — trim input tokens
         input_len = model_inputs["input_ids"].shape[-1]
         generated = outputs[0, input_len:]
-        text = self.tokenizer.decode(generated, skip_special_tokens=True).strip()
+        text = cls.tokenizer.decode(generated, skip_special_tokens=True).strip()
 
         # Extract thinking content and clean response separately.
         # Handle both <think>...</think> and cases where <think> was consumed
@@ -361,10 +365,10 @@ class Qwen35:
     ):
         torch.manual_seed(seed)
 
-        self._load_model(model, quantization, keep_model_loaded)
+        Qwen35._load_model(model, quantization, keep_model_loaded)
 
         try:
-            response, thinking = self._generate(
+            response, thinking = Qwen35._generate(
                 prompt=prompt,
                 system_prompt=system_prompt,
                 image=image,
@@ -380,7 +384,7 @@ class Qwen35:
             return (response, thinking)
         finally:
             if not keep_model_loaded:
-                self._clear()
+                Qwen35._clear()
 
 
 NODE_CLASS_MAPPINGS = {"Qwen35": Qwen35}
