@@ -23,14 +23,20 @@ from transformers import AutoProcessor, AutoTokenizer, BitsAndBytesConfig
 
 import folder_paths
 
-MODEL_REPO = "Qwen/Qwen3.5-9B"
-MODEL_DIR_NAME = "Qwen3.5-9B"
+MODELS = {
+    "Qwen3.5-0.8B": "Qwen/Qwen3.5-0.8B",
+    "Qwen3.5-2B": "Qwen/Qwen3.5-2B",
+    "Qwen3.5-4B": "Qwen/Qwen3.5-4B",
+    "Qwen3.5-9B": "Qwen/Qwen3.5-9B",
+    "Qwen3.5-27B": "Qwen/Qwen3.5-27B",
+}
+MODEL_OPTIONS = list(MODELS.keys())
 QUANTIZATION_OPTIONS = ["FP16", "8-bit", "4-bit"]
 THINK_BLOCK_RE = re.compile(r"<think[^>]*>.*?</think>", flags=re.IGNORECASE | re.DOTALL)
 
 
 class Qwen35:
-    """Qwen3.5-9B unified multimodal node for ComfyUI."""
+    """Qwen3.5 unified multimodal node for ComfyUI."""
 
     model = None
     processor = None
@@ -41,6 +47,10 @@ class Qwen35:
     def INPUT_TYPES(cls):
         return {
             "required": {
+                "model": (MODEL_OPTIONS, {
+                    "default": "Qwen3.5-9B",
+                    "tooltip": "Model size. 0.8B ~2GB, 2B ~5GB, 4B ~9GB, 9B ~20GB, 27B ~56GB (FP16)",
+                }),
                 "prompt": ("STRING", {
                     "default": "Describe this image in detail.",
                     "multiline": True,
@@ -121,11 +131,11 @@ class Qwen35:
     CATEGORY = "🧪AILab/Qwen3.5"
 
     @staticmethod
-    def _get_model_path():
+    def _get_model_path(model_name: str):
         """Get the local model path, creating the directory if needed."""
         llm_dir = os.path.join(folder_paths.models_dir, "LLM")
         os.makedirs(llm_dir, exist_ok=True)
-        return os.path.join(llm_dir, MODEL_DIR_NAME)
+        return os.path.join(llm_dir, model_name)
 
     @staticmethod
     def _tensor_to_pil(tensor: torch.Tensor) -> Image.Image:
@@ -145,9 +155,10 @@ class Qwen35:
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
 
-    def _load_model(self, quantization: str, keep_model_loaded: bool):
+    def _load_model(self, model_name: str, quantization: str, keep_model_loaded: bool):
         """Load or reuse the model based on current config."""
-        signature = f"{MODEL_REPO}_{quantization}"
+        repo_id = MODELS[model_name]
+        signature = f"{repo_id}_{quantization}"
 
         if self.model is not None and self.current_signature == signature:
             return
@@ -155,13 +166,13 @@ class Qwen35:
         if self.model is not None:
             self._clear()
 
-        model_path = self._get_model_path()
+        model_path = self._get_model_path(model_name)
 
         # Download if not present
         if not os.path.exists(os.path.join(model_path, "config.json")):
-            print(f"[Qwen3.5] Downloading {MODEL_REPO}...")
+            print(f"[Qwen3.5] Downloading {repo_id}...")
             snapshot_download(
-                repo_id=MODEL_REPO,
+                repo_id=repo_id,
                 local_dir=model_path,
                 ignore_patterns=["*.gguf"],
             )
@@ -203,7 +214,7 @@ class Qwen35:
             free_gb = free_mem / (1024 ** 3)
             print(f"[Qwen3.5] GPU memory: {free_gb:.1f} GiB free / {total_mem / (1024**3):.1f} GiB total")
 
-        print(f"[Qwen3.5] Loading model ({quantization})...")
+        print(f"[Qwen3.5] Loading {model_name} ({quantization})...")
         self.model = AutoVLModel.from_pretrained(
             model_path,
             **load_kwargs,
@@ -332,6 +343,7 @@ class Qwen35:
 
     def process(
         self,
+        model: str,
         prompt: str,
         system_prompt: str,
         max_tokens: int,
@@ -349,7 +361,7 @@ class Qwen35:
     ):
         torch.manual_seed(seed)
 
-        self._load_model(quantization, keep_model_loaded)
+        self._load_model(model, quantization, keep_model_loaded)
 
         try:
             response, thinking = self._generate(

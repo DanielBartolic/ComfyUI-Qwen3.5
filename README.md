@@ -1,6 +1,6 @@
 # ComfyUI-Qwen3.5
 
-Custom ComfyUI node for [Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B) — a unified natively multimodal model with image, video, and text understanding.
+Custom ComfyUI node for the [Qwen3.5](https://huggingface.co/collections/Qwen/qwen35-68417de654900a475d940ded) family — unified natively multimodal models with image, video, and text understanding.
 
 ## Features
 
@@ -14,7 +14,11 @@ Custom ComfyUI node for [Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B) —
 
 | Model | Parameters | VRAM (FP16) | VRAM (8-bit) | VRAM (4-bit) |
 |-------|-----------|-------------|-------------|-------------|
+| [Qwen3.5-0.8B](https://huggingface.co/Qwen/Qwen3.5-0.8B) | 0.8B | ~2 GB | ~1 GB | ~1 GB |
+| [Qwen3.5-2B](https://huggingface.co/Qwen/Qwen3.5-2B) | 2B | ~5 GB | ~3 GB | ~2 GB |
+| [Qwen3.5-4B](https://huggingface.co/Qwen/Qwen3.5-4B) | 4B | ~9 GB | ~6 GB | ~4 GB |
 | [Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B) | 9.65B | ~20 GB | ~12 GB | ~7 GB |
+| [Qwen3.5-27B](https://huggingface.co/Qwen/Qwen3.5-27B) | 27B | ~56 GB | ~30 GB | ~17 GB |
 
 ## Installation
 
@@ -44,6 +48,7 @@ Found under **🧪AILab/Qwen3.5** in the node menu.
 
 | Input | Type | Default | Description |
 |-------|------|---------|-------------|
+| `model` | dropdown | Qwen3.5-9B | Model size (0.8B / 2B / 4B / 9B / 27B) |
 | `prompt` | STRING | required | Text prompt for the model |
 | `system_prompt` | STRING | `""` | Optional system prompt |
 | `max_tokens` | INT | 4096 | Maximum tokens to generate |
@@ -63,7 +68,8 @@ Found under **🧪AILab/Qwen3.5** in the node menu.
 
 | Output | Type | Description |
 |--------|------|-------------|
-| `RESPONSE` | STRING | Model's text response |
+| `RESPONSE` | STRING | Model's text response (thinking stripped) |
+| `THINKING` | STRING | Extracted reasoning content (empty if thinking disabled) |
 
 ### Recommended Sampling Parameters
 
