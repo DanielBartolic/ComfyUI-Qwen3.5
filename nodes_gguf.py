@@ -3,7 +3,7 @@
 # 9x faster than transformers FP16: 152 tok/s vs 17 tok/s on RTX PRO 6000.
 #
 # Requires: llama.cpp built with CUDA (llama-mtmd-cli binary on PATH or cli_path set)
-# Models: https://huggingface.co/unsloth/Qwen3.5-9B-GGUF
+# Models: https://huggingface.co/unsloth
 
 import os
 import re
@@ -19,18 +19,40 @@ from huggingface_hub import hf_hub_download
 
 import folder_paths
 
-REPO_ID = "unsloth/Qwen3.5-9B-GGUF"
-MMPROJ_FILENAME = "mmproj-BF16.gguf"
-
-GGUF_MODELS = {
-    "Q4_K_XL (6.0 GB, fastest)": "Qwen3.5-9B-UD-Q4_K_XL.gguf",
-    "Q4_K_M (5.7 GB)": "Qwen3.5-9B-Q4_K_M.gguf",
-    "Q5_K_XL (6.7 GB)": "Qwen3.5-9B-UD-Q5_K_XL.gguf",
-    "Q6_K_XL (8.8 GB)": "Qwen3.5-9B-UD-Q6_K_XL.gguf",
-    "Q8_0 (9.5 GB)": "Qwen3.5-9B-Q8_0.gguf",
-    "BF16 (17.9 GB, full)": "Qwen3.5-9B-BF16.gguf",
+MODELS = {
+    "Qwen3.5-0.8B": "unsloth/Qwen3.5-0.8B-GGUF",
+    "Qwen3.5-2B": "unsloth/Qwen3.5-2B-GGUF",
+    "Qwen3.5-4B": "unsloth/Qwen3.5-4B-GGUF",
+    "Qwen3.5-9B": "unsloth/Qwen3.5-9B-GGUF",
+    "Qwen3.5-27B": "unsloth/Qwen3.5-27B-GGUF",
 }
-GGUF_OPTIONS = list(GGUF_MODELS.keys())
+MODEL_OPTIONS = list(MODELS.keys())
+
+QUANTIZATIONS = [
+    "Q4_K_XL",
+    "Q4_K_M",
+    "Q4_K_S",
+    "Q5_K_XL",
+    "Q5_K_M",
+    "Q5_K_S",
+    "Q6_K",
+    "Q6_K_XL",
+    "Q8_0",
+    "Q8_K_XL",
+    "Q3_K_M",
+    "Q3_K_S",
+    "Q4_0",
+    "Q4_1",
+    "IQ4_NL",
+    "IQ4_XS",
+    "BF16",
+]
+
+# Map quantization names to GGUF filename patterns.
+# "UD-" prefix is used for Unsloth Dynamic quantizations (_XL variants).
+_UD_QUANTS = {"Q2_K_XL", "Q3_K_XL", "Q4_K_XL", "Q5_K_XL", "Q6_K_XL", "Q8_K_XL"}
+
+MMPROJ_FILENAME = "mmproj-BF16.gguf"
 
 THINK_BLOCK_RE = re.compile(
     r"<think[^>]*>.*?</think>", flags=re.IGNORECASE | re.DOTALL
@@ -44,9 +66,13 @@ class Qwen35GGUF:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "quantization": (GGUF_OPTIONS, {
-                    "default": "Q4_K_XL (6.0 GB, fastest)",
-                    "tooltip": "GGUF quantization level. Q4_K_XL: 152 tok/s on RTX PRO 6000",
+                "model": (MODEL_OPTIONS, {
+                    "default": "Qwen3.5-9B",
+                    "tooltip": "Model size. 0.8B ~1GB, 2B ~2GB, 4B ~3GB, 9B ~6GB, 27B ~17GB (Q4)",
+                }),
+                "quantization": (QUANTIZATIONS, {
+                    "default": "Q4_K_XL",
+                    "tooltip": "GGUF quantization. XL = Unsloth Dynamic (smart mixed precision)",
                 }),
                 "prompt": ("STRING", {
                     "default": "Describe this image in detail.",
@@ -130,16 +156,23 @@ class Qwen35GGUF:
     CATEGORY = "Qwen3.5"
 
     @staticmethod
-    def _get_model_dir() -> Path:
-        model_dir = Path(folder_paths.models_dir) / "LLM" / "Qwen3.5-9B-GGUF"
+    def _get_model_dir(model_name: str) -> Path:
+        model_dir = Path(folder_paths.models_dir) / "LLM" / f"{model_name}-GGUF"
         model_dir.mkdir(parents=True, exist_ok=True)
         return model_dir
 
     @staticmethod
-    def _ensure_model(quantization: str) -> tuple[Path, Path]:
+    def _gguf_filename(model_name: str, quantization: str) -> str:
+        """Build the GGUF filename from model name and quantization."""
+        prefix = "UD-" if quantization in _UD_QUANTS else ""
+        return f"{model_name}-{prefix}{quantization}.gguf"
+
+    @staticmethod
+    def _ensure_model(model_name: str, quantization: str) -> tuple[Path, Path]:
         """Download GGUF model + mmproj if not present."""
-        model_dir = Qwen35GGUF._get_model_dir()
-        model_filename = GGUF_MODELS[quantization]
+        repo_id = MODELS[model_name]
+        model_dir = Qwen35GGUF._get_model_dir(model_name)
+        model_filename = Qwen35GGUF._gguf_filename(model_name, quantization)
         model_path = model_dir / model_filename
         mmproj_path = model_dir / MMPROJ_FILENAME
 
@@ -148,9 +181,9 @@ class Qwen35GGUF:
             (MMPROJ_FILENAME, mmproj_path),
         ]:
             if not path.exists():
-                print(f"[Qwen3.5 GGUF] Downloading {filename}...")
+                print(f"[Qwen3.5 GGUF] Downloading {filename} from {repo_id}...")
                 hf_hub_download(
-                    repo_id=REPO_ID,
+                    repo_id=repo_id,
                     filename=filename,
                     local_dir=str(model_dir),
                 )
@@ -289,6 +322,7 @@ class Qwen35GGUF:
 
     def process(
         self,
+        model: str,
         quantization: str,
         prompt: str,
         system_prompt: str,
@@ -305,7 +339,7 @@ class Qwen35GGUF:
         cli_path: str = "",
     ):
         cli = Qwen35GGUF._find_cli(cli_path)
-        model_path, mmproj_path = Qwen35GGUF._ensure_model(quantization)
+        model_path, mmproj_path = Qwen35GGUF._ensure_model(model, quantization)
 
         image_path = None
         try:
