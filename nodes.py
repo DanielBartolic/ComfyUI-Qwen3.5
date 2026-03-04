@@ -329,8 +329,12 @@ class Qwen35:
         generated = outputs[0, input_len:]
         text = self.tokenizer.decode(generated, skip_special_tokens=True).strip()
 
-        # Strip thinking blocks from output
+        # Strip thinking blocks from output.
+        # Handle both <think>...</think> and cases where <think> was consumed
+        # by skip_special_tokens but </think> remains.
         text = THINK_BLOCK_RE.sub("", text).strip()
+        if "</think>" in text:
+            text = text.split("</think>")[-1].strip()
 
         return text
 
