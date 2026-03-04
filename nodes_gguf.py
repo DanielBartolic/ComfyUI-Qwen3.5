@@ -5,6 +5,7 @@
 # Requires: llama.cpp built with CUDA (llama-mtmd-cli binary on PATH or cli_path set)
 # Models: https://huggingface.co/unsloth
 
+import json
 import os
 import re
 import shutil
@@ -249,9 +250,11 @@ class Qwen35GGUF:
         repeat_penalty: float,
         n_gpu_layers: int,
         ctx_size: int,
+        enable_thinking: bool,
         seed: int,
     ) -> str:
         """Run llama-mtmd-cli and return the generated text."""
+        thinking_kwargs = json.dumps({"enable_thinking": enable_thinking})
         cmd = [
             cli_path,
             "-m", str(model_path),
@@ -264,6 +267,7 @@ class Qwen35GGUF:
             "-ngl", str(n_gpu_layers),
             "-c", str(ctx_size),
             "--seed", str(seed),
+            "--chat-template-kwargs", thinking_kwargs,
         ]
 
         if image_path:
@@ -371,6 +375,7 @@ class Qwen35GGUF:
                 repeat_penalty=repeat_penalty,
                 n_gpu_layers=n_gpu_layers,
                 ctx_size=ctx_size,
+                enable_thinking=enable_thinking,
                 seed=seed,
             )
 
