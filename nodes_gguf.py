@@ -306,15 +306,26 @@ class Qwen35GGUF:
     def _extract_thinking(text: str) -> tuple[str, str]:
         """Extract thinking content and clean response. Returns (response, thinking)."""
         thinking = ""
+
+        # Case 1: Complete <think>...</think> block
         match = THINK_BLOCK_RE.search(text)
         if match:
             thinking = re.sub(r"</?think[^>]*>", "", match.group(0)).strip()
             text = THINK_BLOCK_RE.sub("", text).strip()
-        if "</think>" in text:
+
+        # Case 2: </think> without opening tag (stripped by tokenizer)
+        elif "</think>" in text:
             parts = text.split("</think>", 1)
-            if not thinking:
-                thinking = parts[0].strip()
+            thinking = parts[0].strip()
             text = parts[1].strip()
+
+        # Case 3: <think> without </think> (truncated by max_tokens)
+        elif "<think>" in text:
+            parts = text.split("<think>", 1)
+            before = parts[0].strip()
+            thinking = parts[1].strip()
+            text = before
+
         # Clean leftover chat template tokens
         for token in ("<|im_end|>", "<|im_start|>", "<|endoftext|>"):
             text = text.replace(token, "")
