@@ -84,7 +84,8 @@ class Qwen35WaveSpeed:
                 }),
             },
             "optional": {
-                "image": ("IMAGE", {"tooltip": "Single image input"}),
+                "image": ("IMAGE", {"tooltip": "Single image input (resized + base64 encoded)"}),
+                "image_url": ("STRING", {"default": "", "tooltip": "Image URL — sent directly to API, no base64. Preferred over image input."}),
             },
         }
 
@@ -94,16 +95,22 @@ class Qwen35WaveSpeed:
     CATEGORY = "Qwen3.5"
 
     @staticmethod
-    def _tensor_to_base64(tensor: torch.Tensor) -> str:
-        """Convert ComfyUI IMAGE tensor to base64 data URI."""
+    def _tensor_to_base64(tensor: torch.Tensor, max_side: int = 1024) -> str:
+        """Convert ComfyUI IMAGE tensor to base64 data URI, resized to fit API limits."""
         if tensor.dim() == 4:
             tensor = tensor[0]
         array = (tensor.cpu().numpy() * 255).clip(0, 255).astype(np.uint8)
         img = Image.fromarray(array)
+        # Resize if too large (keeps aspect ratio)
+        w, h = img.size
+        if max(w, h) > max_side:
+            scale = max_side / max(w, h)
+            img = img.resize((int(w * scale), int(h * scale)), Image.LANCZOS)
+            print(f"[Qwen3.5 WaveSpeed] Resized image {w}x{h} -> {img.size[0]}x{img.size[1]}")
         buf = io.BytesIO()
-        img.save(buf, format="PNG")
+        img.save(buf, format="JPEG", quality=85)
         b64 = base64.b64encode(buf.getvalue()).decode()
-        return f"data:image/png;base64,{b64}"
+        return f"data:image/jpeg;base64,{b64}"
 
     def process(
         self,
@@ -116,6 +123,7 @@ class Qwen35WaveSpeed:
         top_k: int,
         api_key: str,
         image=None,
+        image_url="",
     ):
         from openai import OpenAI
 
@@ -135,7 +143,11 @@ class Qwen35WaveSpeed:
             messages.append({"role": "system", "content": system_prompt.strip()})
 
         user_content = []
-        if image is not None:
+        # Prefer URL over base64 tensor (URL is sent directly, no size limit)
+        if image_url and image_url.strip():
+            user_content.append({"type": "image_url", "image_url": {"url": image_url.strip()}})
+            print(f"[Qwen3.5 WaveSpeed] Using image URL: {image_url.strip()[:80]}...")
+        elif image is not None:
             data_uri = self._tensor_to_base64(image)
             user_content.append({"type": "image_url", "image_url": {"url": data_uri}})
         user_content.append({"type": "text", "text": prompt})
