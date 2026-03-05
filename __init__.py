@@ -17,4 +17,11 @@ try:
 except ImportError as e:
     print(f"[Qwen3.5] GGUF node not available: {e}")
 
+try:
+    from .nodes_wavespeed import NODE_CLASS_MAPPINGS as _WS, NODE_DISPLAY_NAME_MAPPINGS as _WS_NAMES
+    NODE_CLASS_MAPPINGS.update(_WS)
+    NODE_DISPLAY_NAME_MAPPINGS.update(_WS_NAMES)
+except ImportError as e:
+    print(f"[Qwen3.5] WaveSpeed node not available: {e}")
+
 __all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS"]
