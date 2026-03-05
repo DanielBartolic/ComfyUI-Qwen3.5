@@ -11,6 +11,7 @@ import re
 import base64
 
 import numpy as np
+import torch
 from PIL import Image
 
 THINK_BLOCK_RE = re.compile(r"<think[^>]*>.*?</think>", flags=re.IGNORECASE | re.DOTALL)
@@ -169,10 +170,6 @@ class Qwen35WaveSpeed:
 
         return (text, thinking)
 
-
-# Need torch for tensor_to_base64 — import here so ComfyUI sees the node
-# even if torch isn't loaded yet (it always is in ComfyUI)
-import torch
 
 NODE_CLASS_MAPPINGS = {"Qwen35WaveSpeed": Qwen35WaveSpeed}
 NODE_DISPLAY_NAME_MAPPINGS = {"Qwen35WaveSpeed": "Qwen 3.5 (WaveSpeed API)"}
