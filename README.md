@@ -2,9 +2,11 @@
 
 Custom ComfyUI nodes for the [Qwen3.5](https://huggingface.co/collections/Qwen/qwen35) family — unified natively multimodal models with image, video, and text understanding.
 
-Two nodes included:
+Four nodes included:
 - **Qwen 3.5** — transformers-based, supports image + video + text, FP16/8-bit/4-bit quantization
 - **Qwen 3.5 (GGUF)** — llama.cpp-based, **9x faster** (152 tok/s vs 17 tok/s), uses GGUF quantized models
+- **Qwen 3.5 (WaveSpeed API)** — cloud API, no local GPU needed, access up to 397B parameter models
+- **Load Image from URL** — utility node to load images from any URL
 
 ![ComfyUI-Qwen3.5 Screenshot](screenshot.png)
 
@@ -242,7 +244,64 @@ All from [unsloth/Qwen3.5-9B-GGUF](https://huggingface.co/unsloth/Qwen3.5-9B-GGU
 
 ---
 
-## Output (both nodes)
+## Node: Qwen 3.5 (WaveSpeed API)
+
+Cloud-based node using WaveSpeed's OpenAI-compatible API. **No local GPU needed** — runs on WaveSpeed's infrastructure. Found under **Qwen3.5** in the node menu.
+
+Requires a [WaveSpeed API key](https://wavespeed.ai). Set `WAVESPEED_API_KEY` environment variable or pass it directly in the node.
+
+```bash
+pip install openai
+```
+
+### Inputs
+
+| Input | Type | Default | Description |
+|-------|------|---------|-------------|
+| `model` | dropdown | Qwen3.5-27B | Model size (35B-A3B to 397B-A17B) |
+| `prompt` | STRING | required | Text prompt |
+| `system_prompt` | STRING | `""` | Optional system prompt |
+| `max_tokens` | INT | 4096 | Maximum tokens to generate |
+| `temperature` | FLOAT | 1.0 | Sampling temperature |
+| `top_p` | FLOAT | 0.95 | Nucleus sampling |
+| `top_k` | INT | 20 | Top-K sampling |
+| `api_key` | STRING | `""` | WaveSpeed API key (or use env var) |
+| `image` | IMAGE | optional | Image input (resized + base64 encoded) |
+| `image_url` | STRING | `""` | Image URL (sent directly, preferred over image input) |
+
+### Available Models
+
+| Model | Pricing (input/output per M tokens) |
+|-------|--------------------------------------|
+| Qwen3.5-35B-A3B | $0.16 / $1.30 (cheapest) |
+| Qwen3.5-Flash | — |
+| Qwen3.5-27B | $0.20 / $1.60 |
+| Qwen3.5-Plus | — |
+| Qwen3.5-122B-A10B | $0.26 / $2.10 |
+| Qwen3.5-397B-A17B | $0.39 / $2.30 (best quality) |
+
+---
+
+## Node: Load Image from URL
+
+Utility node to download an image from any public URL and output it as a ComfyUI IMAGE tensor. Shows preview after execution. Found under **Qwen3.5** in the node menu.
+
+### Inputs
+
+| Input | Type | Description |
+|-------|------|-------------|
+| `url` | STRING | Public image URL |
+
+### Outputs
+
+| Output | Type | Description |
+|--------|------|-------------|
+| `IMAGE` | IMAGE | Downloaded image as tensor |
+| `URL` | STRING | Pass-through of the input URL |
+
+---
+
+## Output (Qwen 3.5 nodes)
 
 | Output | Type | Description |
 |--------|------|-------------|
