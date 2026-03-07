@@ -264,6 +264,23 @@ From the [Qwen3.5 README](https://huggingface.co/Qwen/Qwen3.5-9B):
 
 You need to build llama.cpp from source — see [Building llama.cpp](#building-llamacpp). The `llama-cpp-python` pip package does **not** include this binary.
 
+### `ggml_cuda_init: failed to initialize CUDA` (Blackwell / newer GPUs)
+
+If cmake reports `CMAKE_CUDA_ARCHITECTURES_NATIVE=No CUDA devices found`, specify the architecture manually:
+
+```bash
+# Blackwell (RTX PRO 6000, B200, etc.) — SM_120:
+cmake llama.cpp -B llama.cpp/build -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=120
+
+# Ada Lovelace (RTX 4090, L40, etc.) — SM_89:
+cmake llama.cpp -B llama.cpp/build -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=89
+
+# Hopper (H100, H200) — SM_90:
+cmake llama.cpp -B llama.cpp/build -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=90
+```
+
+This happens in containers where the GPU is available via `nvidia-smi` but not visible to the CUDA runtime during build.
+
 ### CPU-only usage
 
 Both nodes work without a GPU:
