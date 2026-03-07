@@ -1,6 +1,6 @@
 [project]
 name = "comfyui-qwen35"
-description = "Qwen3.5 vision-language nodes for ComfyUI — transformers (FP16/8-bit/4-bit) and GGUF (llama.cpp, 9x faster). Image understanding, video understanding, text generation, and thinking mode."
+description = "Qwen3.5 vision-language nodes for ComfyUI — transformers (FP16/8-bit/4-bit), GGUF (llama.cpp, 9x faster), and WaveSpeed cloud API (up to 397B). Image understanding, video understanding, text generation, and thinking mode."
 version = "1.0.0"
 license = { file = "LICENSE" }
 dependencies = [
