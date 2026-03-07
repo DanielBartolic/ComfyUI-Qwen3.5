@@ -5,7 +5,6 @@
 # Requires: llama.cpp built with CUDA (llama-mtmd-cli binary on PATH or cli_path set)
 # Models: https://huggingface.co/unsloth
 
-import json
 import os
 import re
 import shutil
@@ -254,7 +253,6 @@ class Qwen35GGUF:
         seed: int,
     ) -> str:
         """Run llama-mtmd-cli and return the generated text."""
-        thinking_kwargs = json.dumps({"enable_thinking": enable_thinking})
         cmd = [
             cli_path,
             "-m", str(model_path),
@@ -267,17 +265,21 @@ class Qwen35GGUF:
             "-ngl", str(n_gpu_layers),
             "-c", str(ctx_size),
             "--seed", str(seed),
-            "--chat-template-kwargs", thinking_kwargs,
         ]
 
         if image_path:
             cmd.extend(["--image", image_path])
 
+        # Control thinking mode via Qwen3.5's /think and /no_think prompt
+        # tokens. This works with all llama.cpp builds (unlike the
+        # --chat-template-kwargs flag which requires very recent builds).
+        think_prefix = "/think" if enable_thinking else "/no_think"
+
         # Build the full prompt with system prompt if provided
         if system_prompt and system_prompt.strip():
-            full_prompt = f"{system_prompt.strip()}\n\n{prompt}"
+            full_prompt = f"{system_prompt.strip()}\n\n{think_prefix}\n{prompt}"
         else:
-            full_prompt = prompt
+            full_prompt = f"{think_prefix}\n{prompt}"
 
         cmd.extend(["-p", full_prompt])
 
