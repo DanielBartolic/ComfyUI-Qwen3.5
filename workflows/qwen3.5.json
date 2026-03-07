@@ -1,0 +1,64 @@
+{
+  "3": {
+    "inputs": {
+      "image": "example.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "4": {
+    "inputs": {
+      "preview": "This image is a stylized, low-resolution digital illustration of a cartoon character standing outdoors against a simple background. The overall aesthetic is reminiscent of early 2000s pixel art or crude vector graphics — with blocky shapes, flat colors, and minimal detail.\n\n**Character Description:**\n\n- **Head & Hair**: The character has large, floppy, yellow hair that extends outward on both sides like wings or oversized ears. The hair is rendered in two shades of yellow — a lighter cream-yellow for highlights and a more saturated lemon-yellow for the main body. Two small white “clouds” or tufts of hair float above the head on either side, giving it a whimsical, floating effect.\n  \n- **Face**: The face is small and centered under the hair. It features:\n  - Two large, round, solid blue eyes with tiny black pupils.\n  - A simple curved black line forming a gentle smile.\n  - No nose or eyebrows are visible — the face is minimalistic.\n\n- **Body**: The torso is covered by a sleeveless pink dress or top, shaped like an inverted triangle or trapezoid. It’s drawn with slightly jagged edges, suggesting hand-drawn or low-fidelity rendering.\n\n- **Arms**: Two short, pale beige arms extend horizontally from the shoulders. They end in simple rounded hands (no fingers).\n\n- **Legs**: Two pale beige legs stand straight down, ending in rounded feet. They appear to be planted firmly on the ground.\n\n**Background:**\n\n- The scene is divided into two horizontal bands:\n  - **Top half**: A solid light blue sky.\n  - **Bottom half**: A bright lime-green ground or hill, sloping gently upward from left to right.\n- Two fluffy white clouds float near the top corners of the sky — one on each side — adding to the cheerful, childlike atmosphere.\n\n**Art Style Notes:**\n\n- The entire image uses bold, flat colors without gradients or shading.\n- Edges are somewhat irregular and “jagged,” giving it a deliberately retro or amateurish charm.\n- The proportions are exaggerated — especially the large head and hair relative to the body — typical of cute cartoon designs.\n- There’s no depth or perspective; everything is presented frontally and at eye level.\n\n**Overall Impression:**\n\nThe character appears friendly, innocent, and playful — possibly designed as an avatar, mascot, or for use in children’s media or online games. Its expression is calm and content, and the bright color palette evokes happiness and simplicity. Despite its rough edges, the image conveys warmth and charm through its naive, handcrafted feel.\n\n---\n\n*Note: This image may have been created using basic drawing tools or edited from a template — common in fan art, early internet culture, or educational materials.*",
+      "previewMode": null,
+      "source": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "PreviewAny",
+    "_meta": {
+      "title": "Preview as Text"
+    }
+  },
+  "5": {
+    "inputs": {
+      "preview": "",
+      "previewMode": null,
+      "source": [
+        "8",
+        1
+      ]
+    },
+    "class_type": "PreviewAny",
+    "_meta": {
+      "title": "Preview as Text"
+    }
+  },
+  "8": {
+    "inputs": {
+      "model": "Qwen3.5-9B",
+      "prompt": "Describe this image in detail.",
+      "system_prompt": "",
+      "max_tokens": 4096,
+      "temperature": 1,
+      "top_p": 0.95,
+      "top_k": 20,
+      "repetition_penalty": 1,
+      "enable_thinking": true,
+      "quantization": "FP16",
+      "keep_model_loaded": true,
+      "seed": 1,
+      "frame_count": 16,
+      "image": [
+        "3",
+        0
+      ]
+    },
+    "class_type": "Qwen35",
+    "_meta": {
+      "title": "Qwen 3.5"
+    }
+  }
+}

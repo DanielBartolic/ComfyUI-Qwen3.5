@@ -1,0 +1,65 @@
+{
+  "3": {
+    "inputs": {
+      "image": "example.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "4": {
+    "inputs": {
+      "preview": "This image displays a simple, low-resolution digital drawing of a cartoon character set against a two-toned background.\n\n**The Character:**\n*   **Appearance:** The figure resembles a stylized, anthropomorphic yellow creature, strongly similar to the Pokémon Pikachu. It has a pale yellow head with two very long, pointed ears that stick straight up and out to the sides.\n*   **Face:** The face features two large, solid blue circles for eyes, each containing a tiny black dot for a pupil. Below the eyes is a small, curved black line forming a gentle smile.\n*   **Clothing:** The character is wearing a simple, sleeveless pink dress that covers the torso. The dress is a flat pink color with no details.\n*   **Limbs:** Two pale beige or cream-colored arms extend horizontally from the sides of the dress. Two matching legs extend downwards from the bottom of the dress.\n\n**The Background:**\n*   **Sky:** The top portion of the image is a solid, medium blue color representing the sky.\n*   **Clouds:** There are two white, fluffy cloud shapes floating near the top left and top right corners.\n*   **Ground:** The bottom portion of the image is a solid, bright lime green, representing grass or a field.\n\n**Art Style:**\nThe image has a very rough, blocky aesthetic typical of simple digital painting tools (like a standard brush in MS Paint). The edges are jagged and pixelated, and the colors are flat with no shading or gradients.",
+      "previewMode": null,
+      "source": [
+        "7",
+        0
+      ]
+    },
+    "class_type": "PreviewAny",
+    "_meta": {
+      "title": "Preview as Text"
+    }
+  },
+  "5": {
+    "inputs": {
+      "preview": "The user wants a detailed description of the provided image.\n\n1.  **Identify the subject:** The image shows a cartoon-style character, likely a fan art or original creation based on the Pokémon \"Pikachu\" or a similar yellow, electric-type creature, but with distinct modifications. It looks like a \"Pikachu\" but with human-like features (arms, legs, dress). Wait, looking closer, it's actually a very simplified, almost child-like drawing of a creature that resembles Pikachu but with large ears and a dress. Let's look at the features: yellow fur, long ears with black tips (though the tips are cut off or just yellow in this specific drawing style), blue eyes, a small black mouth. It's wearing a pink dress.\n\n2.  **Analyze the style:** The art style is very rough, pixelated, and low-resolution. It looks like a digital painting made with a basic brush tool, possibly in MS Paint or a similar simple editor. The edges are jagged and blocky. The colors are flat and solid.\n\n3.  **Break down the composition:**\n    *   **Background:** A solid light blue sky at the top and a solid bright green ground at the bottom. There are two white, fluffy cloud shapes near the top left and top right.\n    *   **Character - Head:**\n        *   Color: Pale yellow.\n        *   Shape: Roundish but with two very long, pointed ears sticking up and out.\n        *   Face: Two large, solid blue circles for eyes. Inside each blue circle is a tiny black dot for a pupil. There's a small, curved black line for a mouth, giving a slight smile or neutral expression.\n    *   **Character - Body:**\n        *   The body is mostly covered by a pink dress.\n        *   The dress is a simple, sleeveless shape, roughly triangular or trapezoidal.\n        *   Arms: Two pale beige/cream-colored arms stick out from the sides of the dress. They are simple rectangles with rounded ends.\n        *   Legs: Two pale beige/cream-colored legs extend downwards from the bottom of the dress. They are simple shapes.\n    *   **Overall Impression:** It looks like a cute, simplified drawing of a character that strongly resembles Pikachu from Pokémon, but gender-swapped or stylized as a girl in a pink dress.\n\n4.  **Drafting the description (Iterative refinement):**\n    *   *Draft 1:* It's a picture of a yellow character like Pikachu. It has big blue eyes and is wearing a pink dress. The background is blue sky and green grass. There are clouds. The drawing looks like it was made on a computer with a simple brush.\n    *   *Draft 2 (Adding detail):* The image features a cartoon character that looks like a female version of Pikachu. It has yellow fur with long ears. The eyes are bright blue circles. It is wearing a pink dress. The arms and legs are a light beige color. The background is a split of blue sky and green ground. There are two white clouds. The style is very rough and pixelated.\n    *   *Draft 3 (Polishing and structuring):* Start with the main subject. Describe the physical features (ears, eyes, color). Describe the clothing. Describe the background elements. Mention the artistic style (low res, blocky).\n\n5.  **Final Polish (matching the generated output):**\n    *   **Subject:** A stylized, cartoonish character resembling a yellow rodent or Pokémon (specifically Pikachu).\n    *   **Head:** Large, pale yellow head with two very long, pointed ears extending upwards.\n    *   **Face:** Two large, solid blue circles for eyes with tiny black pupils. A small, curved black line for a mouth.\n    *   **Body/Clothing:** The character wears a simple, sleeveless pink dress that covers the torso. The arms and legs are visible in a pale beige/cream color, extending outwards and downwards.\n    *   **Background:** A simple two-tone background. The top half is a medium blue sky with two white, fluffy clouds near the top corners. The bottom half is a bright, lime green representing grass or ground.\n    *   **Art Style:** The image has a very low-resolution, digital art aesthetic. The lines are jagged and blocky, resembling a painting made with a standard brush tool in a simple image editor like MS Paint. The colors are flat with no shading or gradients.\n\nThis thought process moves from general identification to specific details, then considers the artistic style, and finally structures the description for clarity.",
+      "previewMode": null,
+      "source": [
+        "7",
+        1
+      ]
+    },
+    "class_type": "PreviewAny",
+    "_meta": {
+      "title": "Preview as Text"
+    }
+  },
+  "7": {
+    "inputs": {
+      "model": "Qwen3.5-9B",
+      "quantization": "Q4_0",
+      "prompt": "Describe this image in detail.",
+      "system_prompt": "",
+      "max_tokens": 4096,
+      "temperature": 0.7,
+      "top_p": 0.8,
+      "top_k": 20,
+      "repeat_penalty": 1,
+      "n_gpu_layers": 99,
+      "ctx_size": 8192,
+      "enable_thinking": true,
+      "seed": 3787224134,
+      "cli_path": "",
+      "image": [
+        "3",
+        0
+      ]
+    },
+    "class_type": "Qwen35GGUF",
+    "_meta": {
+      "title": "Qwen 3.5 (GGUF)"
+    }
+  }
+}
