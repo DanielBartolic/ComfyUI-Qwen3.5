@@ -218,8 +218,15 @@ class Qwen35GGUF:
                 return c
 
         raise FileNotFoundError(
-            "[Qwen3.5 GGUF] llama-mtmd-cli not found. "
-            "Build llama.cpp with CUDA or set the cli_path input."
+            "[Qwen3.5 GGUF] llama-mtmd-cli not found.\n\n"
+            "Build llama.cpp from source:\n"
+            "  git clone https://github.com/ggml-org/llama.cpp\n"
+            "  cmake llama.cpp -B llama.cpp/build -DGGML_CUDA=ON\n"
+            "  cmake --build llama.cpp/build --config Release -j$(nproc)\n"
+            "  sudo cp llama.cpp/build/bin/llama-mtmd-cli /usr/local/bin/\n\n"
+            "For CPU-only (no CUDA), omit -DGGML_CUDA=ON and set n_gpu_layers to 0.\n"
+            "Or set the cli_path input to your llama-mtmd-cli binary path.\n"
+            "Docs: https://github.com/DanielBartolic/ComfyUI-Qwen3.5#building-llamacpp"
         )
 
     @staticmethod
