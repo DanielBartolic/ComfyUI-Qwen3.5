@@ -78,6 +78,10 @@ class Qwen35WaveSpeed:
                     "max": 100,
                     "tooltip": "Top-K sampling",
                 }),
+                "thinking": ("BOOLEAN", {
+                    "default": True,
+                    "tooltip": "Enable thinking/reasoning mode (reasoning_effort: medium). Disable for faster, cheaper responses.",
+                }),
                 "api_key": ("STRING", {
                     "default": "",
                     "tooltip": "WaveSpeed API key. Leave empty to use WAVESPEED_API_KEY env var.",
@@ -121,6 +125,7 @@ class Qwen35WaveSpeed:
         temperature: float,
         top_p: float,
         top_k: int,
+        thinking: bool,
         api_key: str,
         image=None,
         image_url="",
@@ -161,7 +166,10 @@ class Qwen35WaveSpeed:
             max_tokens=max_tokens,
             temperature=temperature,
             top_p=top_p,
-            extra_body={"top_k": top_k},
+            extra_body={
+                "top_k": top_k,
+                **({"reasoning_effort": "medium"} if thinking else {}),
+            },
         )
 
         text = response.choices[0].message.content or ""

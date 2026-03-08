@@ -31,4 +31,11 @@ try:
 except ImportError as e:
     print(f"[Qwen3.5] Load URL node not available: {e}")
 
+try:
+    from .nodes_wavespeed_llm import NODE_CLASS_MAPPINGS as _LLM, NODE_DISPLAY_NAME_MAPPINGS as _LLM_NAMES
+    NODE_CLASS_MAPPINGS.update(_LLM)
+    NODE_DISPLAY_NAME_MAPPINGS.update(_LLM_NAMES)
+except ImportError as e:
+    print(f"[Qwen3.5] WaveSpeed LLM node not available: {e}")
+
 __all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS"]
